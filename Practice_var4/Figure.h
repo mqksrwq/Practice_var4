@@ -1,7 +1,7 @@
 #pragma once
 #include <Windows.h>
 
-namespace ShapesApp {
+namespace PracticeVar4 {
     using namespace System;
     using namespace System::Drawing;
 

@@ -2,7 +2,7 @@
 #include "Figure.h"
 #include <math.h>
 
-namespace ShapesApp {
+namespace PracticeVar4 {
     public ref class Octagon : public Figure {
     public:
         Octagon(Point pos, int r, Color fill, Color border)

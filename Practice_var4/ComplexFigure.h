@@ -2,7 +2,7 @@
 #include "Circle.h"
 #include "Octagon.h"
 
-namespace ShapesApp {
+namespace PracticeVar4 {
     public ref class ComplexFigure : public Figure {
     private:
         Circle^ circle;

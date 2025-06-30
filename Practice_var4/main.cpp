@@ -7,6 +7,6 @@ using namespace System::Windows::Forms;
 int main() {
     Application::EnableVisualStyles();
     Application::SetCompatibleTextRenderingDefault(false);
-    Application::Run(gcnew ShapesApp::MainForm());
+    Application::Run(gcnew PracticeVar4::MainForm());
     return 0;
 }

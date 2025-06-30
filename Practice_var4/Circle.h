@@ -1,7 +1,7 @@
 #pragma once
 #include "Figure.h"
 
-namespace ShapesApp {
+namespace PracticeVar4 {
     public ref class Circle : public Figure {
     public:
         Circle(Point pos, int r, Color fill, Color border)

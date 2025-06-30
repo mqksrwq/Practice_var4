@@ -4,7 +4,7 @@
 #include "ComplexFigure.h"
 #include "FiguresContainer.h"
 
-namespace ShapesApp {
+namespace PracticeVar4 {
     using namespace System;
     using namespace System::Drawing;
     using namespace System::Windows::Forms;

@@ -2,7 +2,7 @@
 #include "Figure.h"
 #include <vcclr.h>
 
-namespace ShapesApp {
+namespace PracticeVar4 {
     public ref class FiguresContainer {
     private:
         System::Collections::Generic::List<Figure^>^ figures;
