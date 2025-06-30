@@ -12,11 +12,11 @@ namespace PracticeVar4 {
             figures = gcnew System::Collections::Generic::List<Figure^>();
         }
 
-        property System::Collections::Generic::List<Figure^>^ Figures {
-            System::Collections::Generic::List<Figure^>^ get() { return figures; }
+        property System::Collections::Generic::List<Figure^>^ Figures{
+            System::Collections::Generic::List<Figure^> ^ get() { return figures; }
         }
 
-        void Add(Figure^ figure) {
+            void Add(Figure^ figure) {
             figures->Add(figure);
         }
 
@@ -32,7 +32,7 @@ namespace PracticeVar4 {
         }
 
         void DrawAll(Graphics^ g) {
-            for each (Figure ^ fig in figures) {
+            for each(Figure ^ fig in figures) {
                 if (fig->Visible)
                     fig->Draw(g);
             }

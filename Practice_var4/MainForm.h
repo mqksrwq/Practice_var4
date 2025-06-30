@@ -28,8 +28,22 @@ namespace PracticeVar4 {
         Label^ lblFigures;
         Drawing::Rectangle drawingArea;
 
+        // Элементы для управления цветами
+        ColorDialog^ colorDialog;
+        Button^ btnChangeFill;
+        Button^ btnChangeOctagonFill;  // Вторая заливка (для комплексной фигуры)
+        Button^ btnChangeBorder;       // Теперь будет под заливками
+        Color currentFillColor;
+        Color currentBorderColor;
+        Color currentOctagonFillColor;
+
     public:
         MainForm() {
+            // Инициализация цветов по умолчанию
+            currentFillColor = Color::Red;
+            currentBorderColor = Color::Black;
+            currentOctagonFillColor = Color::Yellow;
+
             // Инициализация области рисования
             drawingArea = Drawing::Rectangle(200, 50, 400, 500);
             InitializeComponent();
@@ -38,7 +52,6 @@ namespace PracticeVar4 {
 
     private:
         void InitializeComponent() {
-
             // Настройка формы
             this->ClientSize = System::Drawing::Size(1000, 600);
             this->Text = L"Управление фигурами";
@@ -108,11 +121,42 @@ namespace PracticeVar4 {
             this->Controls->Add(btnAddOctagon);
 
             btnAddComplex = gcnew Button();
-            btnAddComplex->Text = "Добавить комплексную фигуру";
+            btnAddComplex->Text = "Добавить комплекс";
             btnAddComplex->Location = Point(20, 100);
-            btnAddComplex->Size = System::Drawing::Size(150, 50);
+            btnAddComplex->Size = System::Drawing::Size(150, 30);
             btnAddComplex->Click += gcnew EventHandler(this, &MainForm::AddComplex);
             this->Controls->Add(btnAddComplex);
+
+            // Кнопки управления цветами
+            colorDialog = gcnew ColorDialog();
+            colorDialog->FullOpen = true;
+
+            // Кнопки выбора заливки (верхний ряд)
+            btnChangeFill = gcnew Button();
+            btnChangeFill->Text = "Заливка (осн.)";
+            btnChangeFill->Location = Point(20, 150);  // Первая строка
+            btnChangeFill->Size = System::Drawing::Size(100, 30);
+            btnChangeFill->BackColor = currentFillColor;
+            btnChangeFill->Click += gcnew EventHandler(this, &MainForm::ChangeFillColor);
+            this->Controls->Add(btnChangeFill);
+
+            // Кнопка второй заливки (для комплексной фигуры)
+            btnChangeOctagonFill = gcnew Button();
+            btnChangeOctagonFill->Text = "Заливка (к.ф)";
+            btnChangeOctagonFill->Location = Point(20, 250); // Рядом с первой
+            btnChangeOctagonFill->Size = System::Drawing::Size(100, 30);
+            btnChangeOctagonFill->BackColor = currentOctagonFillColor;
+            btnChangeOctagonFill->Click += gcnew EventHandler(this, &MainForm::ChangeOctagonFillColor);
+            this->Controls->Add(btnChangeOctagonFill);
+
+            // Кнопка выбора контура (теперь на второй строке)
+            btnChangeBorder = gcnew Button();
+            btnChangeBorder->Text = "Контур";
+            btnChangeBorder->Location = Point(20, 190);  // Вторая строка
+            btnChangeBorder->Size = System::Drawing::Size(100, 30);
+            btnChangeBorder->BackColor = currentBorderColor;
+            btnChangeBorder->Click += gcnew EventHandler(this, &MainForm::ChangeBorderColor);
+            this->Controls->Add(btnChangeBorder);
 
             // Кнопки управления
             btnRemove = gcnew Button();
@@ -139,6 +183,54 @@ namespace PracticeVar4 {
             this->Paint += gcnew PaintEventHandler(this, &MainForm::OnPaint);
         }
 
+        // Методы для работы с цветами
+        void ChangeFillColor(Object^ sender, EventArgs^ e) {
+            if (colorDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
+                currentFillColor = colorDialog->Color;
+                btnChangeFill->BackColor = currentFillColor;
+                UpdateSelectedFigureColors();
+            }
+        }
+
+        void ChangeBorderColor(Object^ sender, EventArgs^ e) {
+            if (colorDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
+                currentBorderColor = colorDialog->Color;
+                btnChangeBorder->BackColor = currentBorderColor;
+                UpdateSelectedFigureColors();
+            }
+        }
+
+        void ChangeOctagonFillColor(Object^ sender, EventArgs^ e) {
+            if (colorDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
+                currentOctagonFillColor = colorDialog->Color;
+                btnChangeOctagonFill->BackColor = currentOctagonFillColor;
+                UpdateSelectedFigureColors();
+            }
+        }
+
+        void UpdateSelectedFigureColors() {
+            if (figuresList->SelectedIndex == -1) return;
+
+            Figure^ selected = container->Figures[figuresList->SelectedIndex];
+
+            if (dynamic_cast<ComplexFigure^>(selected) == nullptr) {
+                // Обычные фигуры
+                selected->FillColor = currentFillColor;
+                selected->BorderColor = currentBorderColor;
+            }
+            else {
+                // Комплексная фигура
+                ComplexFigure^ complex = (ComplexFigure^)selected;
+                complex->CircleFigure->FillColor = currentFillColor;
+                complex->OctagonFigure->FillColor = currentOctagonFillColor;
+                complex->CircleFigure->BorderColor = currentBorderColor;
+                complex->OctagonFigure->BorderColor = currentBorderColor;
+            }
+
+            UpdateFiguresList();
+            this->Invalidate();
+        }
+
         // Валидация координат
         bool ValidatePosition(Point pos, int radius) {
             if (pos.X - radius < drawingArea.Left ||
@@ -161,7 +253,7 @@ namespace PracticeVar4 {
             return true;
         }
 
-        // Обновление фигур
+        // Обновление списка фигур
         void UpdateFiguresList() {
             figuresList->Items->Clear();
             figuresList->DrawMode = DrawMode::OwnerDrawFixed;
@@ -172,35 +264,38 @@ namespace PracticeVar4 {
             }
         }
 
-        // Отрисовка в списке фигур
+        // Отрисовка элементов списка
         void OnDrawItem(Object^ sender, DrawItemEventArgs^ e) {
             if (e->Index < 0) return;
 
             Figure^ fig = (Figure^)figuresList->Items[e->Index];
             String^ text = fig->ToString();
 
-            // Ширина
             RectangleF bounds = RectangleF(e->Bounds.X, e->Bounds.Y,
                 e->Bounds.Width + 50, e->Bounds.Height);
 
-            // Стиль
             System::Drawing::Font^ font;
+            Brush^ background;
+            Brush^ textBrush;
+
             if (fig->Visible) {
                 font = gcnew System::Drawing::Font(e->Font, FontStyle::Bold);
-                e->Graphics->FillRectangle(Brushes::White, bounds);
+                background = Brushes::White;
+                textBrush = Brushes::Black;
             }
             else {
-                font = gcnew System::Drawing::Font(e->Font, FontStyle::Regular);
-                e->Graphics->FillRectangle(Brushes::LightGray, bounds);
+                font = gcnew System::Drawing::Font(e->Font, FontStyle::Italic);
+                background = Brushes::LightGray;
+                textBrush = Brushes::Gray;
             }
 
-            // Выравнивание
+            e->Graphics->FillRectangle(background, bounds);
+
             StringFormat^ format = gcnew StringFormat();
             format->LineAlignment = StringAlignment::Center;
 
-            e->Graphics->DrawString(text, font, Brushes::Black, bounds, format);
+            e->Graphics->DrawString(text, font, textBrush, bounds, format);
 
-            // Фокус
             if ((e->State & DrawItemState::Selected) == DrawItemState::Selected) {
                 e->Graphics->DrawRectangle(Pens::Blue, Rectangle::Round(bounds));
             }
@@ -209,6 +304,7 @@ namespace PracticeVar4 {
             delete format;
         }
 
+        // Добавление фигур
         void AddCircle(Object^ sender, EventArgs^ e) {
             try {
                 Point pos(Int32::Parse(txtX->Text), Int32::Parse(txtY->Text));
@@ -216,7 +312,7 @@ namespace PracticeVar4 {
 
                 if (!ValidatePosition(pos, r)) return;
 
-                container->Add(gcnew Circle(pos, r, Color::Red, Color::Black));
+                container->Add(gcnew Circle(pos, r, currentFillColor, currentBorderColor));
                 UpdateFiguresList();
                 this->Invalidate();
             }
@@ -232,7 +328,7 @@ namespace PracticeVar4 {
 
                 if (!ValidatePosition(pos, r)) return;
 
-                container->Add(gcnew Octagon(pos, r, Color::Blue, Color::Black));
+                container->Add(gcnew Octagon(pos, r, currentFillColor, currentBorderColor));
                 UpdateFiguresList();
                 this->Invalidate();
             }
@@ -249,7 +345,7 @@ namespace PracticeVar4 {
                 if (!ValidatePosition(pos, r)) return;
 
                 container->Add(gcnew ComplexFigure(pos, r,
-                    Color::Green, Color::Yellow, Color::Black));
+                    currentFillColor, currentOctagonFillColor, currentBorderColor));
                 UpdateFiguresList();
                 this->Invalidate();
             }
@@ -258,7 +354,7 @@ namespace PracticeVar4 {
             }
         }
 
-        // Удаление фигуры из списка
+        // Управление фигурами
         void RemoveFigure(Object^ sender, EventArgs^ e) {
             if (figuresList->SelectedIndex != -1) {
                 container->RemoveAt(figuresList->SelectedIndex);
@@ -267,7 +363,6 @@ namespace PracticeVar4 {
             }
         }
 
-        // Настройка видимости фигуры
         void ToggleVisibility(Object^ sender, EventArgs^ e) {
             if (figuresList->SelectedIndex != -1) {
                 container->ToggleVisibility(figuresList->SelectedIndex);
@@ -276,7 +371,6 @@ namespace PracticeVar4 {
             }
         }
 
-        // Перемещение фигуры
         void MoveFigure(Object^ sender, EventArgs^ e) {
             if (figuresList->SelectedIndex != -1) {
                 try {
@@ -295,22 +389,25 @@ namespace PracticeVar4 {
             }
         }
 
-        // Отрисовка фигур
+        // Отрисовка на форме
         void OnPaint(Object^ sender, PaintEventArgs^ e) {
             e->Graphics->Clear(Color::White);
 
-            // Граница области
+            // Рисуем границу области рисования
             Pen^ areaPen = gcnew Pen(Color::LightGray, 2);
             e->Graphics->DrawRectangle(areaPen, drawingArea);
+            delete areaPen;
 
-            // Подпись области
+            // Подпись области рисования
             System::Drawing::Font^ font = gcnew System::Drawing::Font("Arial", 10);
             e->Graphics->DrawString(
                 String::Format("Область рисования ({0},{1})-({2},{3})",
                     drawingArea.Left, drawingArea.Top,
                     drawingArea.Right, drawingArea.Bottom),
                 font, Brushes::Gray, drawingArea.Left, drawingArea.Top - 20);
+            delete font;
 
+            // Отрисовка всех фигур
             container->DrawAll(e->Graphics);
         }
     };

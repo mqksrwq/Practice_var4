@@ -3,6 +3,8 @@
 using namespace System;
 using namespace System::Windows::Forms;
 
+// Бояркин Максим - 24ВП1
+
 [STAThread]
 int main() {
     Application::EnableVisualStyles();

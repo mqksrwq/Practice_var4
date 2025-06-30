@@ -15,7 +15,31 @@ namespace PracticeVar4 {
             octagon = gcnew Octagon(pos, r, octagonFill, border);
         }
 
-        virtual void Show() override {
+        property Circle^ CircleFigure{
+            Circle ^ get() { return circle; }
+        }
+
+            property Octagon^ OctagonFigure{
+                Octagon ^ get() { return octagon; }
+        }
+
+            virtual property Color FillColor{
+                Color get() override { return Figure::FillColor; }
+                void set(Color value) override {
+                    circle->FillColor = value;
+                    octagon->FillColor = octagon->FillColor; // Сохраняем оригинальный цвет
+                }
+        }
+
+            virtual property Color BorderColor{
+                Color get() override { return Figure::BorderColor; }
+                void set(Color value) override {
+                    circle->BorderColor = value;
+                    octagon->BorderColor = value;
+                }
+        }
+
+            virtual void Show() override {
             Figure::Show();
             circle->Show();
             octagon->Show();
@@ -40,7 +64,8 @@ namespace PracticeVar4 {
         }
 
         virtual String^ ToString() override {
-            return String::Format("Комплексная фигура [X:{0} Y:{1} R:{2}]", position.X, position.Y, radius);
+            return String::Format("Комплексная фигура [X:{0} Y:{1} R:{2}]",
+                position.X, position.Y, radius);
         }
     };
 }

@@ -22,9 +22,5 @@ namespace PracticeVar4 {
             g->FillPolygon(gcnew SolidBrush(fillColor), points);
             g->DrawPolygon(gcnew Pen(borderColor, 2), points);
         }
-
-        virtual String^ ToString() override {
-            return String::Format("Восьмиугольник [X:{0} Y:{1} R:{2}]", position.X, position.Y, radius);
-        }
     };
 }

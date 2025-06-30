@@ -18,25 +18,36 @@ namespace PracticeVar4 {
             : position(pos), radius(r), fillColor(fill), borderColor(border), visible(true) {
         }
 
-        property Point Position {
+        property Point Position{
             Point get() { return position; }
             void set(Point value) { position = value; }
         }
 
-        property int Radius {
-            int get() { return radius; }
-            void set(int value) { radius = value; }
+            property int Radius{
+                int get() { return radius; }
+                void set(int value) { radius = value; }
         }
 
-        property bool Visible {
-            bool get() { return visible; }
-            void set(bool value) { visible = value; }
+            property bool Visible{
+                bool get() { return visible; }
+                void set(bool value) { visible = value; }
+        }
+
+            virtual property Color FillColor{
+                Color get() { return fillColor; }
+                void set(Color value) { fillColor = value; }
+        }
+
+            virtual property Color BorderColor{
+                Color get() { return borderColor; }
+                void set(Color value) { borderColor = value; }
         }
 
         virtual void Show() { visible = true; }
         virtual void Hide() { visible = false; }
         virtual void Move(Point newPos) { position = newPos; }
         virtual void Draw(Graphics^ g) abstract;
+
         virtual String^ ToString() override {
             return String::Format("{0} [X:{1} Y:{2} R:{3}] {4}",
                 GetType()->Name,

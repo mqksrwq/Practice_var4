@@ -17,9 +17,5 @@ namespace PracticeVar4 {
                 position.X - radius, position.Y - radius,
                 radius * 2, radius * 2);
         }
-
-        virtual String^ ToString() override {
-            return String::Format("Круг [X:{0} Y:{1} R:{2}]", position.X, position.Y, radius);
-        }
     };
 }
