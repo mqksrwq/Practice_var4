@@ -30,7 +30,7 @@ namespace ShapesApp {
 
     public:
         MainForm() {
-            // Инициализация области рисования (X: 200-600, Y: 50-550)
+            // Инициализация области рисования
             drawingArea = Drawing::Rectangle(200, 50, 400, 500);
             InitializeComponent();
             container = gcnew FiguresContainer();
@@ -38,6 +38,7 @@ namespace ShapesApp {
 
     private:
         void InitializeComponent() {
+
             // Настройка формы
             this->ClientSize = System::Drawing::Size(1000, 600);
             this->Text = L"Управление фигурами";
@@ -57,7 +58,7 @@ namespace ShapesApp {
             figuresList->HorizontalScrollbar = true;
             this->Controls->Add(figuresList);
 
-            // Поля ввода с правильными диапазонами
+            // Поля ввода
             lblX = gcnew Label();
             lblX->Text = String::Format("X ({0}-{1}):", drawingArea.Left, drawingArea.Right);
             lblX->Location = Point(700, 360);
@@ -87,8 +88,8 @@ namespace ShapesApp {
             this->Controls->Add(lblRadius);
 
             txtRadius = gcnew TextBox();
-            txtRadius->Location = Point(750, 420);
-            txtRadius->Size = System::Drawing::Size(50, 20);
+            txtRadius->Location = Point(820, 420);
+            txtRadius->Size = System::Drawing::Size(60, 20);
             this->Controls->Add(txtRadius);
 
             // Кнопки добавления фигур
@@ -102,14 +103,14 @@ namespace ShapesApp {
             btnAddOctagon = gcnew Button();
             btnAddOctagon->Text = "Добавить восьмиугольник";
             btnAddOctagon->Location = Point(20, 60);
-            btnAddOctagon->Size = System::Drawing::Size(180, 35);
+            btnAddOctagon->Size = System::Drawing::Size(170, 30);
             btnAddOctagon->Click += gcnew EventHandler(this, &MainForm::AddOctagon);
             this->Controls->Add(btnAddOctagon);
 
             btnAddComplex = gcnew Button();
-            btnAddComplex->Text = "Добавить комплекс";
+            btnAddComplex->Text = "Добавить комплексную фигуру";
             btnAddComplex->Location = Point(20, 100);
-            btnAddComplex->Size = System::Drawing::Size(150, 30);
+            btnAddComplex->Size = System::Drawing::Size(150, 50);
             btnAddComplex->Click += gcnew EventHandler(this, &MainForm::AddComplex);
             this->Controls->Add(btnAddComplex);
 
@@ -138,6 +139,7 @@ namespace ShapesApp {
             this->Paint += gcnew PaintEventHandler(this, &MainForm::OnPaint);
         }
 
+        // Валидация координат
         bool ValidatePosition(Point pos, int radius) {
             if (pos.X - radius < drawingArea.Left ||
                 pos.X + radius > drawingArea.Right ||
@@ -159,6 +161,7 @@ namespace ShapesApp {
             return true;
         }
 
+        // Обновление фигур
         void UpdateFiguresList() {
             figuresList->Items->Clear();
             figuresList->DrawMode = DrawMode::OwnerDrawFixed;
@@ -169,17 +172,18 @@ namespace ShapesApp {
             }
         }
 
+        // Отрисовка в списке фигур
         void OnDrawItem(Object^ sender, DrawItemEventArgs^ e) {
             if (e->Index < 0) return;
 
             Figure^ fig = (Figure^)figuresList->Items[e->Index];
             String^ text = fig->ToString();
 
-            // Увеличиваем ширину элемента
+            // Ширина
             RectangleF bounds = RectangleF(e->Bounds.X, e->Bounds.Y,
                 e->Bounds.Width + 50, e->Bounds.Height);
 
-            // Устанавливаем стиль текста
+            // Стиль
             System::Drawing::Font^ font;
             if (fig->Visible) {
                 font = gcnew System::Drawing::Font(e->Font, FontStyle::Bold);
@@ -190,14 +194,13 @@ namespace ShapesApp {
                 e->Graphics->FillRectangle(Brushes::LightGray, bounds);
             }
 
-            // Используем StringFormat для правильного выравнивания
+            // Выравнивание
             StringFormat^ format = gcnew StringFormat();
             format->LineAlignment = StringAlignment::Center;
 
-            // Рисуем текст с учетом новых границ
             e->Graphics->DrawString(text, font, Brushes::Black, bounds, format);
 
-            // Рисуем фокус
+            // Фокус
             if ((e->State & DrawItemState::Selected) == DrawItemState::Selected) {
                 e->Graphics->DrawRectangle(Pens::Blue, Rectangle::Round(bounds));
             }
@@ -255,6 +258,7 @@ namespace ShapesApp {
             }
         }
 
+        // Удаление фигуры из списка
         void RemoveFigure(Object^ sender, EventArgs^ e) {
             if (figuresList->SelectedIndex != -1) {
                 container->RemoveAt(figuresList->SelectedIndex);
@@ -263,6 +267,7 @@ namespace ShapesApp {
             }
         }
 
+        // Настройка видимости фигуры
         void ToggleVisibility(Object^ sender, EventArgs^ e) {
             if (figuresList->SelectedIndex != -1) {
                 container->ToggleVisibility(figuresList->SelectedIndex);
@@ -271,6 +276,7 @@ namespace ShapesApp {
             }
         }
 
+        // Перемещение фигуры
         void MoveFigure(Object^ sender, EventArgs^ e) {
             if (figuresList->SelectedIndex != -1) {
                 try {
@@ -289,10 +295,11 @@ namespace ShapesApp {
             }
         }
 
+        // Отрисовка фигур
         void OnPaint(Object^ sender, PaintEventArgs^ e) {
             e->Graphics->Clear(Color::White);
 
-            // Рисуем границу области
+            // Граница области
             Pen^ areaPen = gcnew Pen(Color::LightGray, 2);
             e->Graphics->DrawRectangle(areaPen, drawingArea);
 
@@ -304,7 +311,6 @@ namespace ShapesApp {
                     drawingArea.Right, drawingArea.Bottom),
                 font, Brushes::Gray, drawingArea.Left, drawingArea.Top - 20);
 
-            // Рисуем фигуры
             container->DrawAll(e->Graphics);
         }
     };
